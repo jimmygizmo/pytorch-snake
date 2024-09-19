@@ -1,3 +1,33 @@
+
+# Project-specific.
+#   (none at this time)
+
+########################################################################################################################
+# General Customizations and Git-Ignore Template Development
+
+# Zone.identifier files (extended attribute, meta information for image files and maybe anything downloaded) (Windows)
+# We would never want these in any repo, so this is a good new general item to add to all .gitignore templates
+**/*Zone.Identifier
+
+# Original source for this .gitignore file might have been PyCharm/IntelliJ. I'm not sure and did not inspect
+# it closely when making these comments. BUT I do recall it seemed like a NEW and better one to consider as my baseline
+# gitignore, which of course I would need to customize a lot. I think below here is all or mostly from that original
+# source which if my recollection serves me, was a good updated source as of July 2024.
+# TODO: Confirm the above, compare to other recent good sources, continue making my own fresh new gitignore(s) since
+#     it has been a few years since I updated my own. (A lot of the time I have just taken the GitHub Python gitignore
+#     and made a few adjustments a the top. A few of my full stack projects use a React/Javascript/Node gitignore
+#     from GitHub similarly.
+
+# Microsoft - URL Security Zones:
+# https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/ms537183(v=vs.85)?redirectedfrom=MSDN
+
+# Microsoft - Zone.Identifier Stream Name
+# https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/6e3f7352-d11c-4d76-8c39-2516a9df36e8?redirectedfrom=MSDN
+
+########################################################################################################################
+# Most/all original from the original source below here. I am fairly certain.
+# # # # # # # # #
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -159,4 +189,87 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+.idea/
+
+# As recommended above, this is JetBrains.gitignore:
+
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# AWS User-specific
+.idea/**/aws.xml
+
+# Generated files
+.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+# Gradle and Maven with auto-import
+# When using Gradle or Maven with auto-import, you should exclude module files,
+# since they will be recreated, and may cause churn.  Uncomment if using
+# auto-import.
+# .idea/artifacts
+# .idea/compiler.xml
+# .idea/jarRepositories.xml
+# .idea/modules.xml
+# .idea/*.iml
+# .idea/modules
+# *.iml
+# *.ipr
+
+# CMake
+cmake-build-*/
+
+# Mongo Explorer plugin
+.idea/**/mongoSettings.xml
+
+# File-based project format
+*.iws
+
+# IntelliJ
+out/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# Cursive Clojure plugin
+.idea/replstate.xml
+
+# SonarLint plugin
+.idea/sonarlint/
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# Editor-based Rest Client
+.idea/httpRequests
+
+# Android studio 3.1+ serialized cache file
+.idea/caches/build_file_checksums.ser
+
+##
+#
