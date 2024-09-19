@@ -114,7 +114,7 @@ class SnakeGame:
         # CHECK FOR COLLISION WITH SELF OR WALL AND END THE GAME IF THAT OCCURS. NOTE: A tuple of info is returned.
         reward = 0  # (**==--==** REWARD SYSTEM - Added for machine-playable version and model training.)
         game_over = False
-        if self.is_collision() or self.frame_iteration > 100*len(self.snake):
+        if self.is_collision() or self.frame_iteration > 100 * len(self.snake):
             game_over = True
             reward = -10
             return reward, game_over, self.score  # (**==--==** Added 'reward' return val for machine-playable version.)
@@ -151,14 +151,14 @@ class SnakeGame:
     #     (similarly, I am very careful about how I name variables, classes, methods, functions, etc.)
 
     # (**==--==** Converted _is_collision to public method for machine-playable version. Was private for human-playable.)
-    def is_collision(self, point=None):  # (**==--==** Added new 'point' arg for machine-playable version, public method.)
-        if point is None:
-            point = self.head
+    def is_collision(self, cell=None):  # (**==--==** Added new 'point' arg for machine-playable version, public method.)
+        if cell is None:
+            cell = self.head
         # COLLISION WITH DISPLAY BOUNDARY
-        if point.x > self.w - SIZE_GRID or point.x < 0 or point.y > self.h - SIZE_GRID or point.y < 0:
+        if cell.x > self.w - SIZE_GRID or cell.x < 0 or cell.y > self.h - SIZE_GRID or cell.y < 0:
             return True
         # COLLISION WITH SNAKE CELL
-        if point in self.snake[1:]:
+        if cell in self.snake[1:]:
             return True
 
         return False
@@ -168,9 +168,9 @@ class SnakeGame:
         self.display.fill(COLOR_BACKGROUND)
 
         # PAINT ALL SNAKE CELLS - Two squares are painted for each cell, one inside the other. just to look nice.
-        for point in self.snake:
-            pygame.draw.rect(self.display, COLOR_SNAKE_OUTER, pygame.Rect(point.x, point.y, SIZE_GRID, SIZE_GRID))
-            pygame.draw.rect(self.display, COLOR_SNAKE_INNER, pygame.Rect(point.x + 4, point.y + 4, 12, 12))
+        for cell in self.snake:
+            pygame.draw.rect(self.display, COLOR_SNAKE_OUTER, pygame.Rect(cell.x, cell.y, SIZE_GRID, SIZE_GRID))
+            pygame.draw.rect(self.display, COLOR_SNAKE_INNER, pygame.Rect(cell.x + 4, cell.y + 4, 12, 12))
 
         # PAINT THE FOOD CELL
         pygame.draw.rect(self.display, COLOR_FOOD, pygame.Rect(self.food.x, self.food.y, SIZE_GRID, SIZE_GRID))
@@ -185,16 +185,16 @@ class SnakeGame:
     # (**==--==** Modified _is_collision for machine-playable version.)
     def _move(self, action):  # (**==--==** Arg 'direction' changed to 'action' for machine-playable version.)
         # (**==--==** BEGIN NEW DIRECTION DETERMINATION for machine-playable version.)
-        clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
-        dir_index = clock_wise.index(self.direction)
+        clockwise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
+        dir_index = clockwise.index(self.direction)  # TODO: Read up on this List.index() method. New? Rolled my own in years past.
         if np.array_equal(action, [1, 0, 0]):
-            new_direction = clock_wise[dir_index] # no change
+            new_direction = clockwise[dir_index]  # FORWARD
         elif np.array_equal(action, [0, 1, 0]):
-            next_idx = (dir_index + 1) % 4
-            new_direction = clock_wise[next_idx]  # RIGHT: r -> d -> l -> u
+            next_index = (dir_index + 1) % 4
+            new_direction = clockwise[next_index]  # RIGHT: r -> d -> l -> u
         else:  # [0, 0, 1]
-            next_idx = (dir_index - 1) % 4
-            new_direction = clock_wise[next_idx]  # LEFT: r -> u -> l -> d
+            next_index = (dir_index - 1) % 4
+            new_direction = clockwise[next_index]  # LEFT: r -> u -> l -> d
         self.direction = dir_index
         # (**==--==** END NEW DIRECTION DETERMINATION for machine-playable version.)
 
