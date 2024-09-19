@@ -4,6 +4,7 @@ import pygame
 import random
 from collections import namedtuple
 from enum import Enum
+import numpy as np
 
 
 # ###########################################    GLOBAL INITIALIZATION    ##############################################
@@ -38,15 +39,15 @@ class Direction(Enum):
 
 class SnakeGame:
     def __init__(self, w=640, h=480):
-        self.w = w
-        self.h = h
-        self.display = pygame.display.set_mode((self.w, self.h))
+        self.w: int = w
+        self.h: int = h
+        self.display: pygame.Surface = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('Snake')
-        self.clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock()  # TODO: For type hint is this int?
 
-        self.direction = Direction.RIGHT  # TODO: What all comprises the 'state' of the game?
+        self.direction: Direction = Direction.RIGHT  # TODO: What all comprises the 'state' of the game?
 
-        self.head = Point(self.w / 2, self.h / 2)  # The snake starts out exactly in the center.
+        self.head: Point = Point(self.w / 2, self.h / 2)  # The snake starts out exactly in the center.
 
         # 'snake' attribute is a list of the snakes Point tuples with the head first (left-most) and to start out,
         # the snake has two additional body cells, laid out to the left. The snake starts out heading to the right.
@@ -54,10 +55,28 @@ class SnakeGame:
                       Point(self.head.x - SIZE_GRID, self.head.y),
                       Point(self.head.x - (2 * SIZE_GRID), self.head.y)]
 
+        self.score: int = 0
+        self.food: Point = Point(0, 0)
+        self._place_food()  # As part of init, call this private method to place food. Also called after each is eaten.
+        self.frame_iteration: int = 0  # (**==--==** New var added for machine-playable version.)
+        self.reset()  # (**==--==** Call to this new function added for machine-playable version.)
+    # end def SnakeGame.__init__()  -  #
+
+    def reset(self):  # (**==--==** Function added for machine-playable version.)
+        # INITIALIZE GAME STATE
+        self.direction = Direction.RIGHT
+        self.head = Point(self.w/2, self.h/2)  # The snake starts out exactly in the center.
+        # 'snake' attribute is a list of the snakes Point tuples with the head first (left-most) and to start out,
+        # the snake has two additional body cells, laid out to the left. The snake starts out heading to the right.
+        self.snake = [self.head,
+                      Point(self.head.x-SIZE_GRID, self.head.y),
+                      Point(self.head.x-(2*SIZE_GRID), self.head.y)]
+
         self.score = 0
         self.food = None
-        self._place_food()  # As part of init, call this private method to place food. Also called after each is eaten.
-    # end def SnakeGame.__init__()  -  #
+        self._place_food()
+        self.frame_iteration = 0
+    # end def reset()  -  # (**==--==** Function added for machine-playable version.)
 
     def _place_food(self):
         x = random.randint(0, (self.w - SIZE_GRID) // SIZE_GRID) * SIZE_GRID
@@ -67,47 +86,54 @@ class SnakeGame:
             self._place_food()
     # end def _place_food()  -  # // About floor division: https://www.geeksforgeeks.org/floor-division-in-python/
 
-    def advance_game_step(self):
+    def advance_game_step(self, action):  # (**==--==** New arg 'action' added for machine-playable version.)
+        self.frame_iteration += 1  # (**==--==** New var increment added for machine-playable version.)
         for event in pygame.event.get():  # USER INPUT
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    self.direction = Direction.LEFT
-                elif event.key == pygame.K_RIGHT:
-                    self.direction = Direction.RIGHT
-                elif event.key == pygame.K_UP:
-                    self.direction = Direction.UP
-                elif event.key == pygame.K_DOWN:
-                    self.direction = Direction.DOWN
+            # (**==--==** Key-control user input disabled here for machine-playable version.)
+            # if event.type == pygame.KEYDOWN:
+            #     if event.key == pygame.K_LEFT:
+            #         self.direction = Direction.LEFT
+            #     elif event.key == pygame.K_RIGHT:
+            #         self.direction = Direction.RIGHT
+            #     elif event.key == pygame.K_UP:
+            #         self.direction = Direction.UP
+            #     elif event.key == pygame.K_DOWN:
+            #         self.direction = Direction.DOWN
         # end event loop and user input  -  #
 
         # MOVE: Calls private _move() method to set the NEW HEAD based on DIRECTION, THEN WE PREPEND THIS NEW Point
         #   ONTO THE LEFT SIDE OF THE 'snake' LIST.
-        self._move(self.direction)  # update the head
+
+        # MACHINE-PLAYABLE INPUT/ACTION
+        self._move(action)# (**==--==** Changed for machine-playable version.)
         self.snake.insert(0, self.head)
 
         # CHECK FOR COLLISION WITH SELF OR WALL AND END THE GAME IF THAT OCCURS. NOTE: A tuple of info is returned.
+        reward = 0  # (**==--==** REWARD SYSTEM - Added for machine-playable version and model training.)
         game_over = False
-        if self._is_collision():
+        if self.is_collision() or self.frame_iteration > 100*len(self.snake):
             game_over = True
-            return game_over, self.score
+            reward = -10
+            return reward, game_over, self.score  # (**==--==** Added 'reward' return val for machine-playable version.)
 
         # CHECK FOR SAME POSITION AS FOOD (EATING IT) AND IF SO PLACE A NEW FOOD OR - JUST MOVE.
         # NOTICE THAT MOVING HAS BEEN MOSTLY TAKEN CARE OF ALREADY AND NOW WE JUST REMOVE THE TAIL END OF THE SNAKE
         # IF WE DID NOT HIT THE FOOD.
         if self.head == self.food:
             self.score += 1
+            reward = 10
             self._place_food()
-            # IMPORTANT! When we eat foog, WE GROW, so we do not discard the tail cell of the snake when we eat.
+            # IMPORTANT! When we eat food, WE GROW, so we do not discard the tail cell of the snake when we eat.
         else:
             self.snake.pop()  # Discards the tail cell of the snake since we have already set the new head position.
 
         # UPDATE UI AND CLOCK
         self._update_ui()
         self.clock.tick(SPEED_GAME)
-        return game_over, self.score
+        return reward, game_over, self.score  # (**==--==** Added 'reward' return val for machine-playable version.)
     # end def advance_game_step()  -  # This is like the contents of your main while loop. Think of the game class
     #   as being like moving all the code you have in global space in a simple pygame into this class, and then you
     #   have a public method which is like you MAIN WHILE LOOP. Note that, in our main() (below) is where we have the
@@ -124,12 +150,15 @@ class SnakeGame:
     #     usage of 'tick' in the pygame context. I like my comments and docs to be well written and accurate.
     #     (similarly, I am very careful about how I name variables, classes, methods, functions, etc.)
 
-    def _is_collision(self):
+    # (**==--==** Converted _is_collision to public method for machine-playable version. Was private for human-playable.)
+    def is_collision(self, point=None):  # (**==--==** Added new 'point' arg for machine-playable version, public method.)
+        if point is None:
+            point = self.head
         # COLLISION WITH DISPLAY BOUNDARY
-        if self.head.x > self.w - SIZE_GRID or self.head.x < 0 or self.head.y > self.h - SIZE_GRID or self.head.y < 0:
+        if point.x > self.w - SIZE_GRID or point.x < 0 or point.y > self.h - SIZE_GRID or point.y < 0:
             return True
         # COLLISION WITH SNAKE CELL
-        if self.head in self.snake[1:]:
+        if point in self.snake[1:]:
             return True
 
         return False
@@ -139,9 +168,9 @@ class SnakeGame:
         self.display.fill(COLOR_BACKGROUND)
 
         # PAINT ALL SNAKE CELLS - Two squares are painted for each cell, one inside the other. just to look nice.
-        for pt in self.snake:
-            pygame.draw.rect(self.display, COLOR_SNAKE_OUTER, pygame.Rect(pt.x, pt.y, SIZE_GRID, SIZE_GRID))
-            pygame.draw.rect(self.display, COLOR_SNAKE_INNER, pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
+        for point in self.snake:
+            pygame.draw.rect(self.display, COLOR_SNAKE_OUTER, pygame.Rect(point.x, point.y, SIZE_GRID, SIZE_GRID))
+            pygame.draw.rect(self.display, COLOR_SNAKE_INNER, pygame.Rect(point.x + 4, point.y + 4, 12, 12))
 
         # PAINT THE FOOD CELL
         pygame.draw.rect(self.display, COLOR_FOOD, pygame.Rect(self.food.x, self.food.y, SIZE_GRID, SIZE_GRID))
@@ -153,16 +182,32 @@ class SnakeGame:
         pygame.display.flip()
     # end def _update_ui()  -  #
 
-    def _move(self, direction):
+    # (**==--==** Modified _is_collision for machine-playable version.)
+    def _move(self, action):  # (**==--==** Arg 'direction' changed to 'action' for machine-playable version.)
+        # (**==--==** BEGIN NEW DIRECTION DETERMINATION for machine-playable version.)
+        clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
+        dir_index = clock_wise.index(self.direction)
+        if np.array_equal(action, [1, 0, 0]):
+            new_direction = clock_wise[dir_index] # no change
+        elif np.array_equal(action, [0, 1, 0]):
+            next_idx = (dir_index + 1) % 4
+            new_direction = clock_wise[next_idx]  # RIGHT: r -> d -> l -> u
+        else:  # [0, 0, 1]
+            next_idx = (dir_index - 1) % 4
+            new_direction = clock_wise[next_idx]  # LEFT: r -> u -> l -> d
+        self.direction = dir_index
+        # (**==--==** END NEW DIRECTION DETERMINATION for machine-playable version.)
+
         x = self.head.x
         y = self.head.y
-        if direction == Direction.RIGHT:
+        # (**==--==** NOTE: Was local var 'direction'. Now references self.direction for machine-playable version.)
+        if self.direction == Direction.RIGHT:
             x += SIZE_GRID
-        elif direction == Direction.LEFT:
+        elif self.direction == Direction.LEFT:
             x -= SIZE_GRID
-        elif direction == Direction.DOWN:
+        elif self.direction == Direction.DOWN:
             y += SIZE_GRID
-        elif direction == Direction.UP:
+        elif self.direction == Direction.UP:
             y -= SIZE_GRID
 
         self.head = Point(x, y)
@@ -227,22 +272,12 @@ font: pygame.Font = pygame.font.SysFont(NAME_SYSTEM_FONT, SIZE_FONT)
 
 # ###############################################    MAIN EXECUTION    #################################################
 
+# NO MAIN BLOCK IN MACHINE-PLAYABLE, ML TRAINING VERSION
+
+# (**==--==** NOTE: Our minimal if-name-main code removed for machine-playable version. This code must be imported.)
 if __name__ == '__main__':
-    game: SnakeGame = SnakeGame()
-    # gr_game_over: bool = False  # TODO: Maybe use these. Only for type hinting, really.
-    # score: int = 0  # TODO: Maybe use these. Only for type hinting, really.
-
-    # MAIN GAME LOOP
-    while True:
-        gr_game_over, score = game.advance_game_step()
-
-        if gr_game_over:
-            break
-    # end main game loop  -  #
-
-    print(f"Score: {score}")
-
-    pygame.quit()
+    print("Machine-playable version. This must be imported by the agent for playing. Do not execute directly.")
+    exit(1)
 # end if __name__ main  -  #
 
 
