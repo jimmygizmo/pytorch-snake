@@ -1,5 +1,8 @@
 #! /usr/bin/env -vS python
 
+# snakegame.py  -  Importable module for usage by the machine-learning training agent.
+# This is the MACHINE PLAYABLE VERSION OF: snake-game--human-playable.py
+
 import pygame
 import random
 from collections import namedtuple
@@ -37,7 +40,7 @@ class Direction(Enum):
 #   NOTE: See additional comments about his Enum after the _move() method below.
 
 
-class SnakeGame:
+class SnakeGameML:
     def __init__(self, w=640, h=480):
         self.w: int = w
         self.h: int = h
@@ -60,7 +63,7 @@ class SnakeGame:
         self._place_food()  # As part of init, call this private method to place food. Also called after each is eaten.
         self.frame_iteration: int = 0  # (**==--==** New var added for machine-playable version.)
         self.reset()  # (**==--==** Call to this new function added for machine-playable version.)
-    # end def SnakeGame.__init__()  -  #
+    # end def SnakeGameML.__init__()  -  #
 
     def reset(self):  # (**==--==** Function added for machine-playable version.)
         # INITIALIZE GAME STATE
@@ -186,16 +189,16 @@ class SnakeGame:
     def _move(self, action):  # (**==--==** Arg 'direction' changed to 'action' for machine-playable version.)
         # (**==--==** BEGIN NEW DIRECTION DETERMINATION for machine-playable version.)
         clockwise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
-        dir_index = clockwise.index(self.direction)  # TODO: Read up on this List.index() method. New? Rolled my own in years past.
+        direction_index = clockwise.index(self.direction)  # TODO: Read up on this List.index() method. New? Rolled my own in years past.
         if np.array_equal(action, [1, 0, 0]):
-            new_direction = clockwise[dir_index]  # FORWARD
+            new_direction = clockwise[direction_index]  # FORWARD
         elif np.array_equal(action, [0, 1, 0]):
-            next_index = (dir_index + 1) % 4
+            next_index = (direction_index + 1) % 4
             new_direction = clockwise[next_index]  # RIGHT: r -> d -> l -> u
         else:  # [0, 0, 1]
-            next_index = (dir_index - 1) % 4
+            next_index = (direction_index - 1) % 4
             new_direction = clockwise[next_index]  # LEFT: r -> u -> l -> d
-        self.direction = dir_index
+        self.direction = new_direction
         # (**==--==** END NEW DIRECTION DETERMINATION for machine-playable version.)
 
         x = self.head.x
