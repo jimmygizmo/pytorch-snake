@@ -1,0 +1,23 @@
+
+NOTE, most-likely the PyTorch installation process will be different depending on your GPU or lack thereof.
+I have a good NVidia GPU and so my 'pip freeze' is specific to my hardware, so a degree I do not know the
+details of.
+
+You should not use my full-detail, version-pinned requirements.txt.
+You should install your modules based off of:
+requirements-top-level.txt
+
+This file represents the 'pip install' commands I executed and the module names,
+You will get the latest versions of the modules and their dependencies by installing in this manner.
+
+My habit is to almost always use the very latest stable version of Python or Linux or whatever and also keep
+libraries fully updated to the latest. Sometimes you have to hold a few versions back for various reasons.
+
+requrements.txt is here in the project repo with full detail and pinned versions so that I can most easily
+work with my environment and my PyCharm IDE.
+You should install from:
+requirements-top-level.txt
+
+Then when you run 'pip freeze', you might see a different detail list of Python modules than I show
+in my requirements.txt
+

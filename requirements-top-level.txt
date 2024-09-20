@@ -1,0 +1,26 @@
+# requirements-top-level.txt - LIST OF MODULES TO INSTALL
+# Run pip install for each of the following.
+# Depending on your hardware, the resulting installs may differ slightly.
+# In this project, I include my requirements.txt, which is specific to my machine.
+# Do no use the requrements.txt file in this project.
+# Install the following just as they are typed, using 'pip install', or from the project directory,
+# you can simply:
+#
+# pip install -r requirements-top-level.txt
+
+
+mypy
+pygame-ce
+numpy
+torch
+matplotlib
+
+
+##
+#
+
+# NOTE: MyPy is not required, just reecommended to keep professional developers doing the best code they can.
+
+
+##
+#

@@ -1,7 +1,5 @@
-#! /usr/bin/env -vS python
-
-# snakegame.py  -  Importable module for usage by the machine-learning training agent.
-# This is the MACHINE PLAYABLE VERSION OF: snake-game--human-playable.py
+## snakegame.py  -  Importable module for usage by the machine-learning training agent.
+# This is the MACHINE PLAYABLE VERSION OF: snakegame-human-playable.py
 
 import pygame
 import random
@@ -21,8 +19,10 @@ COLOR_SNAKE_OUTER: tuple = (0, 0, 255)  # Medium Blue
 COLOR_SNAKE_INNER: tuple = (0, 100, 255)  # Light Blue
 COLOR_BACKGROUND: tuple = (0, 0, 0)  # Black
 SIZE_GRID: int = 20  # Game grid interval (grid square side-length) in pixels
-SPEED_GAME: int = 5  # Lower is slower. This is only used in the human-playable version. 5-10 is a good speed range for humans.
+SPEED_GAME: int = 100  # Lower is slower. 5-10 is a good speed range for humans.
   # NOTE: The machine-playable training version runs at maximum speed to minimize training times.
+  # For fast training (which is almost certainy what you want) make this number high, like 1000 or 10000.
+  # TODO: Clarify the speed instructions. re-write these after researching how speed value works precisely.
 
 Point = namedtuple('Point', 'x, y')
 # Using a namedtuple here allows the pretty/convenient access such as: head.x, head.y
