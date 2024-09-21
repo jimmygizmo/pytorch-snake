@@ -121,7 +121,7 @@ class SnakeAgentML:
 
 # #############################################    FUNCTION DEFINITIONS    #############################################
 
-def hardware_gpu_check():
+def hardware_gpu_check():  # Specific to CUDA/NVidia
     print(f"Is CUDA available: {torch.cuda.is_available()}")
     cuda_devices = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
     for device in cuda_devices:
@@ -130,6 +130,20 @@ def hardware_gpu_check():
 # https://pypi.org/project/test-pytorch-gpu/
 # UPDATE: Ran fine on my machine. My GPU is: NVIDIA RTX A5000 Laptop GPU
 
+def gpu_resource_sample():  # Specific to CUDA/NVidia
+    memory_allocated = round(torch.cuda.memory_allocated(0)/1024**3,1)
+      # Returns the current GPU memory usage by tensors in bytes. (Device 0)
+    memory_reserved = round(torch.cuda.memory_reserved(0)/1024**3,1)
+    print(f"GPU Memory:    Allocated: {memory_allocated} GB    Reserved: {memory_reserved} GB")
+    # OTHER EXPERIMENTAL STATS BELOW HERE:
+    max_memory_reserved = round(torch.cuda.max_memory_reserved(0)/1024**3,1)
+    print(f"GPU Memory:    Max Reserved: {max_memory_reserved} GB")
+      # Returns the maximum GPU memory managed by the caching allocator in bytes for a given device.
+# end def gpu_resource_sample()  -  # TODO: Troubleshoot all three memory values always 0.0.
+# Othere tools can briefly see a small amount of allocated usage. Perhaps this programs just uses no GPU memory?
+#   No I have a feeling maybe the values just exist for a very short amount of time or there is some issue with the
+#   monitoring libs/calls. Not sure yet. I do want robust resource monitoring however, especially for other projects.
+# NOTE: 'reserved' used to be called 'cached' everywhere in older CUDA stuff.
 
 def train():
     plot_scores = []
@@ -149,17 +163,17 @@ def train():
         reward, done, score = game.advance_game_step(final_move)
         state_new = agent.get_state(game)
 
-        # TRAIN SHORT MEMORY
+        # ****  TRAIN SHORT MEMORY  ****
         agent.train_short_memory(state_current, final_move, reward, state_new, done)
 
         # REMEMBER THE FULL RESULT OF THIS ITERATION
         agent.remember(state_current, final_move, reward, state_new, done)
 
         if done:
-            # TRAIN LONG MEMORY
+            gpu_resource_sample()
             game.reset()
             agent.n_games += 1
-            agent.train_long_memory()
+            agent.train_long_memory()  # ****  TRAIN LONG MEMORY  ****
 
             if score > record:
                 record = score
@@ -177,6 +191,7 @@ def train():
 
 if __name__ == '__main__':
     hardware_gpu_check()
+    gpu_resource_sample()
     train()
 
 
@@ -201,6 +216,9 @@ if __name__ == '__main__':
 #   it even better at playing the snake game. I think we can if we add some other kinds of 'danger outlook'. There are
 #   a few simply things we could try. TODO: GOAL: Add USEFUL new senses which are COMPUTATIONALLY CHEAP.
 #   TODO: Idea: Look out farther for danger, even one more cell would add a new capability. Could look out full distance!?
+
+# CHECK THIS OUT! NVTOP - CUDA GPU MONITORING (In the console, but beautifully graphical!)
+# https://github.com/Syllo/nvtop
 
 
 ##
