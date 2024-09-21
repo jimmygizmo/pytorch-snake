@@ -121,6 +121,16 @@ class SnakeAgentML:
 
 # #############################################    FUNCTION DEFINITIONS    #############################################
 
+def hardware_gpu_check():
+    print(f"Is CUDA available: {torch.cuda.is_available()}")
+    cuda_devices = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
+    for device in cuda_devices:
+        print(f"CUDA device name: [{torch.cuda.get_device_name(device)}]")
+# TODO: Check out this module for testing GPU:
+# https://pypi.org/project/test-pytorch-gpu/
+# UPDATE: Ran fine on my machine. My GPU is: NVIDIA RTX A5000 Laptop GPU
+
+
 def train():
     plot_scores = []
     plot_mean_scores = []
@@ -166,7 +176,31 @@ def train():
 
 
 if __name__ == '__main__':
+    hardware_gpu_check()
     train()
+
+
+##
+#
+
+# Unrelated but noticed this paper. Looks interesting. Read this later:
+# Deep Residual Learning for Image Recognition
+
+# https://arxiv.org/pdf/1512.03385
+
+# In understanding Convolutional Neural Networks like PyTorch, one will benefit from understanding the mathematical
+# concept of convolution.
+# Wolfrom MathWorld - Convolution:
+# https://mathworld.wolfram.com/Convolution.html
+# * This article has a great animation. Visualization is very helpful in understanding complex mathematics!
+
+# GPUSTAT - Python GPU (NVidia) Monitoring tool. (I'm looking at how it works for other monitoring interests.)
+# https://pypi.org/project/gpustat/
+# This shows that in my RTX A5000 this project never hits over 5%-10% GPU usage if that and increases the temp about 10 degrees.
+#   So my GPU easily handles this project. This is good because I would like to add more inputs and see if we can make
+#   it even better at playing the snake game. I think we can if we add some other kinds of 'danger outlook'. There are
+#   a few simply things we could try. TODO: GOAL: Add USEFUL new senses which are COMPUTATIONALLY CHEAP.
+#   TODO: Idea: Look out farther for danger, even one more cell would add a new capability. Could look out full distance!?
 
 
 ##
