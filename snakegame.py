@@ -8,8 +8,7 @@ from enum import Enum
 import numpy as np
 
 
-# ###########################################    GLOBAL INITIALIZATION    ##############################################
-
+# ###############################################    CONFIGURATION    ##################################################
 
 NAME_SYSTEM_FONT: str = 'arial'
 SIZE_FONT: int = 25
@@ -23,6 +22,9 @@ SPEED_GAME: int = 100  # Lower is slower. 5-10 is a good speed range for humans.
   # NOTE: The machine-playable training version runs at maximum speed to minimize training times.
   # For fast training (which is almost certainy what you want) make this number high, like 1000 or 10000.
   # TODO: Clarify the speed instructions. re-write these after researching how speed value works precisely.
+
+
+# ###################################    TYPE DEFINITIONS, GLOBAL INITIALIZATION    ####################################
 
 Point = namedtuple('Point', 'x, y')
 # Using a namedtuple here allows the pretty/convenient access such as: head.x, head.y

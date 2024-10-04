@@ -6,8 +6,7 @@ from collections import namedtuple
 from enum import Enum
 
 
-# ###########################################    GLOBAL INITIALIZATION    ##############################################
-
+# ###############################################    CONFIGURATION    ##################################################
 
 NAME_SYSTEM_FONT: str = 'arial'
 SIZE_FONT: int = 25
@@ -19,6 +18,9 @@ COLOR_BACKGROUND: tuple = (0, 0, 0)  # Black
 SIZE_GRID: int = 20  # Game grid interval (grid square side-length) in pixels
 SPEED_GAME: int = 5  # Lower is slower. This is only used in the human-playable version. 5-10 is a good speed range for humans.
   # NOTE: The machine-playable training version runs at maximum speed to minimize training times.
+
+
+# ###################################    TYPE DEFINITIONS, GLOBAL INITIALIZATION    ####################################
 
 Point = namedtuple('Point', 'x, y')
 # Using a namedtuple here allows the pretty/convenient access such as: head.x, head.y

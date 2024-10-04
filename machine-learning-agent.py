@@ -1,4 +1,5 @@
 #! /usr/bin/env -vS python
+# Deep Q Learning Agent for Snake Game
 
 import torch
 import random
@@ -7,7 +8,10 @@ from collections import deque
 from snakegame import SnakeGameML, Direction, Point, SIZE_GRID
 from model import Linear_QNet, QTrainer
 from plotter import plot
+import monitor as mon
 
+
+# ###############################################    CONFIGURATION    ##################################################
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
@@ -121,30 +125,6 @@ class SnakeAgentML:
 
 # #############################################    FUNCTION DEFINITIONS    #############################################
 
-def hardware_gpu_check():  # Specific to CUDA/NVidia
-    print(f"Is CUDA available: {torch.cuda.is_available()}")
-    cuda_devices = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
-    for device in cuda_devices:
-        print(f"CUDA device name: [{torch.cuda.get_device_name(device)}]")
-# TODO: Check out this module for testing GPU:
-# https://pypi.org/project/test-pytorch-gpu/
-# UPDATE: Ran fine on my machine. My GPU is: NVIDIA RTX A5000 Laptop GPU
-
-def gpu_resource_sample():  # Specific to CUDA/NVidia
-    memory_allocated = round(torch.cuda.memory_allocated(0)/1024**3,1)
-      # Returns the current GPU memory usage by tensors in bytes. (Device 0)
-    memory_reserved = round(torch.cuda.memory_reserved(0)/1024**3,1)
-    print(f"GPU Memory:    Allocated: {memory_allocated} GB    Reserved: {memory_reserved} GB")
-    # OTHER EXPERIMENTAL STATS BELOW HERE:
-    max_memory_reserved = round(torch.cuda.max_memory_reserved(0)/1024**3,1)
-    print(f"GPU Memory:    Max Reserved: {max_memory_reserved} GB")
-      # Returns the maximum GPU memory managed by the caching allocator in bytes for a given device.
-# end def gpu_resource_sample()  -  # TODO: Troubleshoot all three memory values always 0.0.
-# Othere tools can briefly see a small amount of allocated usage. Perhaps this programs just uses no GPU memory?
-#   No I have a feeling maybe the values just exist for a very short amount of time or there is some issue with the
-#   monitoring libs/calls. Not sure yet. I do want robust resource monitoring however, especially for other projects.
-# NOTE: 'reserved' used to be called 'cached' everywhere in older CUDA stuff.
-
 def train():
     plot_scores = []
     plot_mean_scores = []
@@ -170,7 +150,7 @@ def train():
         agent.remember(state_current, final_move, reward, state_new, done)
 
         if done:
-            gpu_resource_sample()
+            mon.gpu_resource_sample()
             game.reset()
             agent.n_games += 1
             agent.train_long_memory()  # ****  TRAIN LONG MEMORY  ****
@@ -190,13 +170,42 @@ def train():
 
 
 if __name__ == '__main__':
-    hardware_gpu_check()
-    gpu_resource_sample()
+    mon.hardware_gpu_check()
+    mon.gpu_resource_sample()
     train()
 
 
 ##
 #
+
+# Deep Q Learning Agent for Snake Game
+# Performance: Learns to play the Snake Game very well in about 100 rounds.
+# This program brings together the game and the model and implements the training loop. The agent interfaces between
+#   the game and the model on every iteration/frame/turn of the game for predicting the next (best) action and training
+#   short-term memory. It also interfaces summarily after every game for training long-term memory.
+#   Linear_QNet (DQN) is a feed-forward neural network with two linear layers.
+#   On each turn/frame, the reward scheme is thus: 1. eat food = +10  2. game over = -10  3. everything else = 0
+#   The game ends in one of three ways: time-passed is too long for the size of the snake or hit a wall or hit self.
+#   Time allowed extends as the snake grows but you cant snake around forever. Food must be eaten regularly to avoid
+#   snakes that go in endless loops, without this effect, the model could learn to waste a lot of time unnecessarily.
+#   So for training the model, just as for managing human video game players, time limits are important. So the reward
+#   is -10 for taking too long to eat the next food as well as hitting a wall or self. The only other option is to
+#   eat food and thus train the model on that turn with +10.
+
+
+
+
+
+
+
+
+
+
+# TODO: Question: Does the model know about the overall game results? Or just the result of each turn? I suppose it
+#   MUST know about the overall game results. Clearly we have two phases of training, one for end of turn (short-term
+#   memory training) and one for end of game (long-term memory training) but clarification is needed on how to model
+#   is learning differently between those two (if that is in fact the case as I suspect it is.)
+
 
 # Unrelated but noticed this paper. Looks interesting. Read this later:
 # Deep Residual Learning for Image Recognition

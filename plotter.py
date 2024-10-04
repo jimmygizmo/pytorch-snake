@@ -5,7 +5,12 @@ import matplotlib.pyplot as plt
 from IPython import display
 
 
+# ###################################    TYPE DEFINITIONS, GLOBAL INITIALIZATION    ####################################
+
 plt.ion()
+
+
+# #############################################    FUNCTION DEFINITIONS    #############################################
 
 def plot(scores, mean_scores):
     display.clear_output(wait=True)
@@ -21,6 +26,18 @@ def plot(scores, mean_scores):
     plt.text(len(mean_scores)-1, mean_scores[-1], str(mean_scores[-1]))
     plt.show(block=False)
     plt.pause(.1)
+
+
+##
+#
+
+
+# IPython  (Backend for Jupyter notebook and related to plotting and plots seen in IDEs etc.)
+# TODO: Clarify/improve the definition of IPython
+# https://ipython.org/
+
+# IPYthon Tutorial:
+# https://ipython.readthedocs.io/en/stable/interactive/tutorial.html
 
 
 ##
